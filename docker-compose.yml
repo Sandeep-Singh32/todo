@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  pg_db:
+    image: postgres:13
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: sandeep
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: todo
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  nestjs:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs
+    ports:
+      - "3001:3001"
+    depends_on:
+      - pg_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      POSTGRES_HOST: postgres_db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: sandeep
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: todo
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: nest-pgadmin4
+    environment: 
+      - PGADMIN_DEFAULT_EMAIL=postgres@mail.com
+      - PGADMIN_DEFAULT_PASSWORD=admin12
+      - PGADMIN_LISTEN_PORT=80
+    ports: 
+      - "8000:80"
+    volumes: 
+      - ./pgadmin-data:/var/lib/pgadmin
+    depends_on: 
+      - pg_db
+
+# volumes:
+#   pgdata:
