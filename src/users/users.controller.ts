@@ -10,29 +10,39 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Public } from 'src/shared/decorators/public.decorator';
+import { LoginDTO } from './dto/login.dto';
+import { UserInfo } from './decorators/user.decorator';
+import { User } from './entities/user.entity';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  @Public()
+  signup(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Post('/login')
+  @Public()
+  login(@Body() LoginDto: LoginDTO) {
+    return this.usersService.login(LoginDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  update(
+    @Param('id') id: string,
+    @UserInfo() user: User,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(user.id || id, updateUserDto);
+  }
+
+  @Get('')
+  findOne(@UserInfo() user: User) {
+    return this.usersService.findOne(user.id);
   }
 
   @Delete(':id')

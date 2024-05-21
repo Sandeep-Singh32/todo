@@ -7,6 +7,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -18,7 +19,10 @@ export class Todo extends BaseEntity {
   title: string;
 
   @Column()
-  name: string;
+  author: string;
+
+  @Column()
+  publisher: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdOn: Date;
@@ -27,7 +31,17 @@ export class Todo extends BaseEntity {
   updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.todos)
+  @JoinColumn()
   user: User;
+
+  @Column({ default: false })
+  isArchive: boolean;
+
+  @Column({
+    enum: ['completed', 'pending', 'new', 'in-progress'],
+    default: 'new',
+  })
+  status: string;
 
   @Column()
   userId: string;

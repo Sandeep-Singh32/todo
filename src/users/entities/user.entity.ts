@@ -2,14 +2,16 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Todo } from 'src/todo/entities/todo.entity';
 import { MinLength } from 'class-validator';
-const SALT = 10;
+import { UserInfo } from './userInfo.entity';
 
 @Entity()
 @Unique(['email'])
@@ -20,9 +22,12 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar' })
   name: string;
 
-  @Column()
+  @Column({ select: false })
   @MinLength(6)
   password: string;
+
+  @Column({ default: false })
+  isArchive: boolean;
 
   @Column()
   email: string;
@@ -30,11 +35,17 @@ export class User extends BaseEntity {
   @Column({ type: 'int' })
   age: number;
 
-  @OneToMany(() => Todo, (todo) => todo.user)
+  @OneToMany(() => Todo, (todo) => todo.user, { cascade: true, eager: true })
   todos: Todo[];
 
+  @OneToOne(() => UserInfo, (userInfo) => userInfo.user, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
+  profile: UserInfo;
+
   async validatePassword(password: string): Promise<boolean> {
-    const hash = await bcrypt.hash(password, SALT);
-    return hash === this.password;
+    return bcrypt.compareSync(password, this.password);
   }
 }
