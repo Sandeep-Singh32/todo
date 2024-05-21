@@ -11,6 +11,7 @@ import { JwtAuthGuard } from './guards/JwtAuthGuard';
 // import { typeOrmConfigAsync } from './shared/services/typeorm.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CourseModule } from './courses/courses.module';
+import { TestModule } from './mytest/mytest.module';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { CourseModule } from './courses/courses.module';
         password: configService.get<string>('PASSWORD'),
         database: configService.get<string>('DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: false,
         logging: true,
       }),
       inject: [ConfigService],
@@ -47,6 +48,7 @@ import { CourseModule } from './courses/courses.module';
     UsersModule,
     TodoModule,
     CourseModule,
+    TestModule,
   ],
   providers: [
     {
