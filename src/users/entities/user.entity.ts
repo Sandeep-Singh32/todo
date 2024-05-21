@@ -3,6 +3,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -12,6 +14,7 @@ import * as bcrypt from 'bcryptjs';
 import { Todo } from 'src/todo/entities/todo.entity';
 import { MinLength } from 'class-validator';
 import { UserInfo } from './userInfo.entity';
+import { CourseEntity } from 'src/courses/entities/course.entity';
 
 @Entity()
 @Unique(['email'])
@@ -44,6 +47,10 @@ export class User extends BaseEntity {
   })
   @JoinColumn()
   profile: UserInfo;
+
+  @ManyToMany(() => CourseEntity, (courseEntity) => courseEntity.users)
+  @JoinTable({ name: 'user_courses' })
+  course: CourseEntity[];
 
   async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compareSync(password, this.password);

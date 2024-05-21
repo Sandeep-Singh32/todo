@@ -5,9 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UserInfo } from './entities/userInfo.entity';
+import { CourseEntity } from 'src/courses/entities/course.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserInfo]), JwtModule],
+  imports: [
+    TypeOrmModule.forFeature([User, UserInfo, CourseEntity]),
+    JwtModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService, JwtService],
 })

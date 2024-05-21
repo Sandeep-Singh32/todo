@@ -9,11 +9,15 @@ import { Repository } from 'typeorm';
 import { LoginDTO } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserInfo } from './entities/userInfo.entity';
+import { AssignUserToCouserDto } from './dto/assign-user-to-course.dto';
+import { CourseEntity } from 'src/courses/entities/course.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(CourseEntity)
+    private courseRepo: Repository<CourseEntity>,
     private readonly jwtService: JwtService,
   ) {}
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -83,7 +87,10 @@ export class UsersService {
 
   async findOne(id: string): Promise<User> {
     try {
-      const _user = await this.userRepo.findOne({ where: { id } });
+      const _user = await this.userRepo.findOne({
+        where: { id },
+        relations: ['course'],
+      });
       if (!_user) {
         throw new NotFoundException('user not found');
       }
@@ -118,5 +125,31 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async assignUserToCourse(
+    assignUserCourse: AssignUserToCouserDto,
+  ): Promise<User> {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { id: assignUserCourse.userId },
+        relations: ['course'],
+      });
+
+      const course = await this.courseRepo.findOne({
+        where: { id: assignUserCourse.courseId },
+      });
+
+      if (!user || !course) {
+        throw new NotFoundException('user or course not found');
+      }
+
+      user.course.push(course);
+
+      return await this.userRepo.save(user);
+    } catch (e) {
+      throw new HttpException('cannot assign user', 500);
+      // return e.;
+    }
   }
 }

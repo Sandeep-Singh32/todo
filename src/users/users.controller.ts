@@ -14,6 +14,7 @@ import { Public } from 'src/shared/decorators/public.decorator';
 import { LoginDTO } from './dto/login.dto';
 import { UserInfo } from './decorators/user.decorator';
 import { User } from './entities/user.entity';
+import { AssignUserToCouserDto } from './dto/assign-user-to-course.dto';
 
 @Controller('user')
 export class UsersController {
@@ -48,5 +49,14 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Post('/assignCourse')
+  assignUserToCourse(
+    @Body() assignUserCourse: AssignUserToCouserDto,
+    @UserInfo() user: User,
+  ) {
+    console.log({ id: user.id });
+    return this.usersService.assignUserToCourse(assignUserCourse);
   }
 }
