@@ -23,6 +23,9 @@ export class CourseEntity extends BaseEntity {
   @Column()
   price: number;
 
+  @Column({ nullable: true })
+  author: string;
+
   @ManyToMany(() => User, (user) => user.course)
   users: User[];
 

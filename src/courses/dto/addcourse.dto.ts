@@ -9,6 +9,10 @@ export class AddCourseDto {
   @IsNotEmpty()
   description: string;
 
+  @IsString()
+  @IsNotEmpty()
+  author: string;
+
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: 'price must be a number' },

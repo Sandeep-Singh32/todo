@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -6,38 +6,17 @@ import { TodoModule } from './todo/todo.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants/constant';
 import { PassportModule } from '@nestjs/passport';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/JwtAuthGuard';
-// import { typeOrmConfigAsync } from './shared/services/typeorm.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CourseModule } from './courses/courses.module';
 import { TestModule } from './mytest/mytest.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
-    // TypeOrmModule.forRootAsync(typeOrmConfigAsync),
-    TypeOrmModule.forRootAsync({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          envFilePath: '.env.dev',
-        }),
-      ],
-      useFactory: async (
-        configService: ConfigService,
-      ): Promise<TypeOrmModuleOptions> => ({
-        type: 'postgres',
-        host: configService.get<string>('HOST'),
-        port: configService.get<number>('PORT'),
-        username: configService.get<string>('USERNAME'),
-        password: configService.get<string>('PASSWORD'),
-        database: configService.get<string>('DATABASE'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
-        logging: true,
-      }),
-      inject: [ConfigService],
-    }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.dev'] }),
+    DatabaseModule,
     PassportModule,
     JwtModule.register({
       global: true,
@@ -56,6 +35,10 @@ import { TestModule } from './mytest/mytest.module';
       useClass: JwtAuthGuard,
     },
     JwtService,
+    // {
+    //   provide: APP_PIPE,
+    //   useClass: ValidationPipe,
+    // },  //register global pipe
   ],
 })
 export class AppModule {}
